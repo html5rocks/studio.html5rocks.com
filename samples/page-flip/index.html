@@ -1,0 +1,424 @@
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Technique by Hedger Wang - http://hedgerwow.blogspot.com/
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+<title>CSS Page Flip Effect</title>
+<style>
+img {
+  background: #ccc;
+}
+ 
+body {
+ font: 78%/120% times new roman, arial, sans-serif;
+ margin: 10px 10px;
+ text-align: left;
+}
+ 
+h1, h2, h3 {
+  color: #222;
+  font: bold 34px "Century Schoolbook", Georgia, Times, serif;
+  font-size: 28px;
+  margin: 0 auto 6px auto;
+  letter-spacing: -1px;
+  width: 600px;
+  text-shadow: 0 -1px 1px #000;
+}
+ 
+p {
+  font-size: 13px;
+  margin: 0 0 6px 0;
+  text-shadow: 0 -1px 1px #aaa;
+}
+ 
+a:link,
+a:visited,
+a:active {
+ color: #aa0000;
+ text-decoration: none;
+}
+ 
+.doc {
+  margin: auto;
+  width: 610px;
+}
+ 
+.book {
+  outline: none;
+  height: 400px;
+  margin: 40px auto 10px auto;
+  width: 600px;
+  -webkit-transform: rotate(-3deg);
+}
+ 
+.pages {
+  display: block;
+  height: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+ 
+.page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 12px;
+/*   text-shadow: 0 0 2px #666; */
+}
+ 
+.page-even {
+  padding: 0 0 0 50%;
+  width: 50%;
+}
+ 
+.page-odd {
+  padding: 0 50% 0 0;
+  width: 50%;
+}
+ 
+.hd,
+.bd,
+.ft {
+  background: #fff;
+  border: solid 1px #222;
+}
+ 
+ 
+.page-odd .hd,
+.page-odd .bd {
+  background-image:-webkit-gradient(linear,left top,right top,color-stop(0.5, #fff),color-stop(0.8, #eee));
+}
+ 
+ 
+ 
+.page-even .hd,
+.page-even .bd {
+  background-image:-webkit-gradient(linear,left top,right top,color-stop(0.2, #eee),color-stop(0.5, #fff));
+}
+ 
+ 
+.hd {
+  border-bottom: none;
+  height: 30px;
+}
+ 
+.bd {
+  border-top: none;
+  border-bottom: none;
+  height: 350px;
+  overflow: hidden;
+  padding: 0 30px 20px 30px;
+}
+ 
+.ft {
+  background-image:-webkit-gradient(linear,left top,right top,color-stop(0.02, #aaa),color-stop(0.50, #eee),color-stop(1.0, #aaa));
+  border-bottom: none;
+  height: 5px;
+  margin-top: -3px;
+  opacity: 0.8;
+}
+ 
+.page-even .hd,
+.page-even .ft {
+  -webkit-border-top-right-radius: 100px 3px;
+  -webkit-border-top-left-radius: 100px 3px;
+}
+ 
+.page-odd .hd,
+.page-odd .ft {
+  -webkit-border-top-right-radius: 100px 3px;
+  -webkit-border-top-left-radius: 100px 3px;
+}
+ 
+@-webkit-keyframes page-even {
+  0% {
+    -webkit-transform: rotateY(0deg);
+  }
+  50% {
+    -webkit-transform: rotateY(0deg);
+  }
+  75% {
+    color #eee;
+    -webkit-transform: rotateY(90deg);
+  }
+  100% {
+    -webkit-transform: rotateY(90deg);
+  }
+}
+ 
+@-webkit-keyframes page-odd {
+  0% {
+    -webkit-transform: rotateY(90deg);
+  }
+  50% {
+    -webkit-transform: rotateY(90deg);
+  }
+  75% {
+    color: #eee;
+    -webkit-transform: rotateY(90deg);
+  }
+  100% {
+    color: #222;
+    -webkit-transform: rotateY(0deg);
+  }
+}
+ 
+@-webkit-keyframes page-even-hd {
+  0% {
+ 
+  }
+  50% {
+    height: 30px;
+    margin-top: 0;
+    -webkit-border-top-left-radius: 100px 3px;
+  }
+  75% {
+    height: 50px;
+    margin-top: -25px;
+    -webkit-border-top-left-radius: 300px 40px;
+    -webkit-border-top-right-radius: 80px 40px;
+  }
+  100% {
+ 
+  }
+}
+ 
+@-webkit-keyframes page-odd-hd {
+  0% {
+ 
+  }
+  50% {
+ 
+  }
+
+  75% {
+    height: 50px;
+    margin-top: -25px;
+    -webkit-border-top-left-radius: 80px 40px;
+    -webkit-border-top-right-radius: 300px 40px;
+  }
+  100% {
+    height: 30px;
+    margin-top: 0;
+    -webkit-border-top-right-radius: 100px 3px;
+  }
+}
+ 
+@-webkit-keyframes page-even-bg {
+  0% {
+  }
+  50% {
+    color: #000;
+  }
+  75% {
+    color: #ccc;
+  }
+  100% {
+  }
+}
+ 
+ 
+/*
+.book:before{
+  content: "Click The Book";
+  display: block;
+  position: absolute;
+  width: 100%;
+  top: 48%;
+  color: rgba(150,0,0,0.9);
+  position: absolute;
+  z-index: 100000;
+  font-size: 40px;
+  left: 0%;
+  -webkit-text-stroke: 2px rgba(150,0,0,0.9);
+  text-shadow: 1px -1px 2px #000;
+  line-height: 100%;
+}
+ 
+:before {
+  display: none;
+}
+*/
+ 
+.page-1  {
+  -webkit-animation: page-even 2s infinite ease-out;
+}
+ 
+.page-1 .hd {
+  -webkit-animation: page-even-hd 2s infinite ease-in;
+}
+ 
+.page-1 .bd {
+  -webkit-animation: page-even-bg 2s infinite ease-in;
+}
+ 
+.page-2 {
+  -webkit-animation: page-odd 2s infinite ease-out;
+}
+ 
+.page-2 .hd {
+  -webkit-animation: page-odd-hd 2s infinite ease-out;
+}
+ 
+.page-3 {
+  overflow: hidden;
+  -webkit-border-top-left-radius: 100px 3px;
+  -webkit-border-top-right-radius: 100px 10px;
+  -webkit-box-shadow: 0 10px 20px #666;
+}
+ 
+</style> 
+</head> 
+<body>  
+
+
+<div class="doc"> 
+
+
+<div class="book" tabindex="1"> 
+<ul class="pages"> 
+ 
+  <li class="page page-1 page-even" style="z-index:9999"> 
+ 
+    <div class="hd"></div> 
+    <div class="bd"> 
+ 
+<p>Just good ol' boys, wouldn't change if they could, fightin' the system like a true modern day Robin Hood.</p>
+
+ <img 
+src="moulds.jpg" width="100" alt="pix"
+style="float:left;margin: 0 10px 10px 0;border: solid 5px #ccc;" /> 
+
+<p>Top Cat! The most effectual Top Cat! Who's intellectual close friends get to call him T.C., providing it's with dignity. Top Cat! He's the boss, he's a pip, he's the champion&shy;ship. </p>
+
+ 
+ 
+ <img 
+ src="yeast.jpg"  width="100" alt="pix"
+ style="float:right;margin: 10px 10px 0 10px;border: solid 5px #ccc;" /> 
+
+ 
+ <p>Thundercats are on the move, Thun&shy;der&shy;cats are loose. Feel the magic, hear the roar, Thun&shy;der&shy;cats are loose. Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thundercats!</p>
+
+ 
+    </div> 
+    <div class="ft"></div> 
+ 
+  </li> 
+ 
+  <li class="page page-2 page-odd" style="z-index:9998"> 
+ 
+    <div class="hd"></div> 
+    <div class="bd"> 
+ 
+<img 
+src="crisps.jpg" width="120" alt="pix"
+style="float:left;margin: 0 10px 10px 0;border: solid 5px #ccc;" /> 
+
+ 
+ 
+
+<p>Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. He's got style, <a href="http://www.w3.org/TR/css3-2d-transforms/">a groovy style</a>, and a car that just won't stop. When the going gets tough, he's really rough, with a Hong Kong Phooey chop (Hi-Ya!). Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. Hong Kong Phooey, he's fan-riffic!</p>
+
+ 
+ <img 
+ src="cinnamon.jpg" width="100" alt="pix"
+ style="float:right;margin: 10px 10px 0 10px;border: solid 5px #ccc;" /> 
+
+
+ 
+ 
+ <p>Just the good ol' boys, never meanin' no harm. Beats all you've ever saw, been in trouble with the law since the day they was born. Straight'nin' the curve, flat'nin' the hills. Someday the mountain might get 'em, but the law never will.  </p>
+ 
+    </div> 
+    <div class="ft"></div> 
+ 
+  </li> 
+ 
+  <li class="page page-3 page-even" style="z-index:9997"> 
+ 
+    <div class="hd"></div> 
+    <div class="bd"> 
+ 
+ <p>Just good ol' boys, wouldn't change if they could, fightin' the system like a true modern day Robin Hood.</p>
+ 
+<img 
+src="moulds.jpg" width="100" alt="pix"
+style="float:left;margin: 0 10px 10px 0;border: solid 5px #ccc;" /> 
+ 
+ 
+ <p>Top Cat! The most effectual Top Cat! Who's intellectual close friends get to call him T.C., providing it's with dignity. Top Cat! He's the boss, he's a pip, he's the champion&shy;ship. </p>
+
+ 
+ 
+<img 
+src="yeast.jpg"  width="100" alt="pix"
+style="float:right;margin: 10px 10px 0 10px;border: solid 5px #ccc;" /> 
+  
+ 
+ 
+  <p>Thundercats are on the move, Thun&shy;der&shy;cats are loose. Feel the magic, hear the roar, Thun&shy;der&shy;cats are loose. Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thundercats!</p>
+
+ 
+    </div> 
+    <div class="ft"></div> 
+ 
+  </li> 
+ 
+  <li class="page page-4 page-odd" style="z-index:9996"> 
+ 
+    <div class="hd"></div> 
+    <div class="bd"> 
+ 
+<img 
+src="crisps.jpg" width="120" alt="pix"
+style="float:left;margin: 0 10px 10px 0;border: solid 5px #ccc;" /> 
+ 
+ 
+ 
+
+
+<p>Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. He's got style, <a href="http://www.w3.org/TR/css3-2d-transforms/">a groovy style</a>, and a car that just won't stop. When the going gets tough, he's really rough, with a Hong Kong Phooey chop (Hi-Ya!). Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. Hong Kong Phooey, he's fan-riffic!</p>
+
+ 
+<img 
+src="cinnamon.jpg" width="100" alt="pix"
+style="float:right;margin: 10px 10px 0 10px;border: solid 5px #ccc;" /> 
+  
+ 
+
+<p>Just the good ol' boys, never meanin' no harm. Beats all you've ever saw, been in trouble with the law since the day they was born. Straight'nin' the curve, flat'nin' the hills. Someday the mountain might get 'em, but the law never will.  </p>
+
+ 
+    </div> 
+    <div class="ft"></div> 
+ 
+  </li> 
+ 
+</ul> 
+</div> 
+</div> 
+
+
+</body> 
+</html>

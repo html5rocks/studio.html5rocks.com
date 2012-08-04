@@ -1,0 +1,324 @@
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Eric Bidelman <e.bidelman@chromium.org>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lobster|Molengo|Josefin+Sans+Std+Light">
+<style type="text/css">
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+.linear {
+  background: -webkit-gradient(linear, left bottom, left top,
+                               from(#eee), color-stop(0.25, #fff),
+                               to(#eee), color-stop(0.75, #fff));
+}
+.shadow {
+  -moz-box-shadow: 3px 3px 10px #666666;
+  -webkit-box-shadow: 3px 3px 10px #666666;
+  box-shadow: 3px 3px 10px #666666;
+}
+.center {
+  display : -webkit-box;
+  display : -moz-box;
+  display : box;
+  -webkit-box-orient : vertical;
+  -webkit-box-pack : center;
+  -webkit-box-align : center;
+  -moz-box-orient : vertical;
+  -moz-box-pack : center;
+  -moz-box-align : center;
+  box-orient: vertical;
+  box-pack: center;
+  box-align: center;
+}
+#thumbnails {
+  margin: 10px;
+}
+.thumbnail {
+  float: left;
+  text-align: center;
+  -webkit-transition: all 0.5s ease-in-out;
+     -moz-transition: all 0.5s ease-in-out;
+       -o-transition: all 0.5s ease-in-out;
+          transition: all 0.5s ease-in-out;
+}
+.thumbnail:hover {
+  -webkit-transform: rotateZ(360deg) scale(1.5);
+  -moz-transform: rotateZ(360deg) scale(1.5);
+  -o-transform: rotateZ(360deg) scale(1.5);
+  transform: rotateZ(360deg) scale(1.5);
+  
+}
+.thumbnail .image {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #fff;
+}
+.thumbnail .title {
+  margin-bottom: 5px;
+  font-family: Lobster, Helvetica, sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100px;
+  margin: 5px auto;
+}
+.thumbnail img {
+  border: 1px solid #ccc;
+  height: 100px;
+}
+.thumbnail .details {
+  font-family: Molengo, Helvetica, sans-serif;
+  font-size: 10pt;
+}
+#totalFileSize {
+  font-family: Molengo, Helvetica, sans-serif;
+  text-align: center;
+  margin: 10px 0 50px 0;
+}
+#drop_it_like_its_hot {
+  height: 200px;
+  width: 450px;
+  border-radius: 10px;
+  border: 2px dashed #ccc;
+  color: #336699;
+  font-family: 'Josefin Sans Std Light', Helvetica, sans-serif;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+#drop_it_like_its_hot.rounded {
+  -webkit-box-shadow: inset 0px 0px 50px #777;
+  -moz-box-shadow: inset 0px 0px 50px #777;
+  box-shadow: inset 0px 0px 50px #777;
+
+}
+
+</style>
+</head>
+<body class="center">
+  <div id="container">
+
+    <div id="drop_it_like_its_hot" class="center linear">
+      <h2>Drop image files here from your desktop</h2>
+      <span>( try multiple files )</span>
+    </div>
+    <div id="totalFileSize"></div>
+    <div id="thumbnails"></div>
+  </div>
+  <script type="text/html" id="thumbnail_template">
+    <div class="thumbnail">
+      <div class="image shadow" style="-webkit-transform: rotateZ(<%= file.rotate %>deg) ">
+        <img src="<%= file.src %>" alt="<%= file.name %>" title="<%= file.name %>" />
+        <div class="title"><%= file.name %></div>
+        <div class="details"><%= file.type %> @ <%= Math.round(file.fileSize / 1024) %> KB</div>
+      </div>
+    </div>
+  </script>
+  <script type="text/javascript">
+  
+    
+    // Simple JavaScript Templating
+    // John Resig - http://ejohn.org/ - MIT Licensed
+    (function(){
+      var cache = {};
+
+      this.tmpl = function tmpl(str, data){
+        // Figure out if we're getting a template, or if we need to
+        // load the template - and be sure to cache the result.
+        var fn = !/\W/.test(str) ?
+          cache[str] = cache[str] ||
+            tmpl(document.getElementById(str).innerHTML) :
+
+          // Generate a reusable function that will serve as a template
+          // generator (and which will be cached).
+          new Function("obj",
+            "var p=[],print=function(){p.push.apply(p,arguments);};" +
+
+            // Introduce the data as local variables using with(){}
+            "with(obj){p.push('" +
+
+            // Convert the template into pure JavaScript
+            str
+              .replace(/[\r\t\n]/g, " ")
+              .split("<%").join("\t")
+              .replace(/((^|%>)[^\t]*)'/g, "$1\r")
+              .replace(/\t=(.*?)%>/g, "',$1,'")
+              .split("\t").join("');")
+              .split("%>").join("p.push('")
+              .split("\r").join("\\'")
+          + "');}return p.join('');");
+
+        // Provide some basic currying to the user
+        return data ? fn( data ) : fn;
+      };
+    })();
+
+    Element.prototype.hasClassName = function(name) {
+      return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
+    };
+
+    Element.prototype.addClassName = function(name) {
+      if (!this.hasClassName(name)) {
+        var c = this.className;
+        this.className = c ? [c, name].join(' ') : name;
+      }
+    };
+
+    Element.prototype.removeClassName = function(name) {
+      if (this.hasClassName(name)) {
+        var c = this.className;
+        this.className = c.replace(
+            new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g"), "");
+      }
+    };
+    
+    
+    // insertAdjacentHTML(), insertAdjacentText() and insertAdjacentElement 
+    // for Netscape 6/Mozilla by Thor Larholm me@jscript.dk 
+    if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentElement) {
+        HTMLElement.prototype.insertAdjacentElement = function (where, parsedNode) {
+            switch (where) {
+            case 'beforeBegin':
+                this.parentNode.insertBefore(parsedNode, this)
+                break;
+            case 'afterBegin':
+                this.insertBefore(parsedNode, this.firstChild);
+                break;
+            case 'beforeEnd':
+                this.appendChild(parsedNode);
+                break;
+            case 'afterEnd':
+                if (this.nextSibling) this.parentNode.insertBefore(parsedNode, this.nextSibling);
+                else this.parentNode.appendChild(parsedNode);
+                break;
+            }
+        }
+
+        HTMLElement.prototype.insertAdjacentHTML = function (where, htmlStr) {
+            var r = this.ownerDocument.createRange();
+            r.setStartBefore(this);
+            var parsedHTML = r.createContextualFragment(htmlStr);
+            this.insertAdjacentElement(where, parsedHTML)
+        }
+
+
+        HTMLElement.prototype.insertAdjacentText = function (where, txtStr) {
+            var parsedText = document.createTextNode(txtStr)
+            this.insertAdjacentElement(where, parsedText)
+        }
+    }
+
+
+    function onDragEnter(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    function onDragOver(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      dropbox.addClassName('rounded');
+    }
+    
+    function onDragLeave(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      dropbox.removeClassName('rounded');
+    }
+
+    function onDrop(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      dropbox.removeClassName('rounded');
+
+      var readFileSize = 0;
+      var files = e.dataTransfer.files;
+
+      // Loop through list of files user dropped.
+      for (var i = 0, file; file = files[i]; i++) {
+        readFileSize += file.fileSize;
+
+        // Only process image files.
+        var imageType = /image.*/;
+        if (!file.type.match(imageType)) {
+          continue;
+        }
+
+        var reader = new FileReader();
+
+        reader.onerror = function(e) {
+           alert('Error code: ' + e.target.error.code);
+        };
+
+        // Create a closure to capture the file information.
+        reader.onload = (function(aFile) {
+          return function(evt) {
+            // Generate angle between -30 and 30 degrees.
+            var deg = Math.floor(Math.random() * 31);
+            deg = Math.floor(Math.random() * 2) ? deg : -deg;
+
+            var data = {
+              'file': {
+                'name': aFile.name,
+                'src': evt.target.result,
+                'fileSize': aFile.fileSize,
+                'type': aFile.type,
+                'rotate': deg
+              }
+            };
+
+            // Render thumbnail template with the file info (data object).
+            document.getElementById('thumbnails').insertAdjacentHTML(
+                'afterBegin', tmpl('thumbnail_template', data));
+          };
+        })(file);
+
+        // Read in the image file as a data url.
+        reader.readAsDataURL(file);
+      }
+
+      // Set the read / total gallery size information in the UI.
+      totalFileSize += readFileSize;
+      document.getElementById('totalFileSize').innerText = 
+          ['Just read: ', Math.round(readFileSize / 1024), ' KB, ',
+           'Total gallery size: ', Math.round(totalFileSize / 1024),
+           ' KB'].join('');
+
+      return false;
+    }
+
+    // Remember some global settings.
+    var totalFileSize = 0;
+    var dropbox = document.getElementById('drop_it_like_its_hot');
+
+    // Setup drag and drop handlers.
+    dropbox.addEventListener('dragenter', onDragEnter, false);
+    dropbox.addEventListener('dragover', onDragOver, false);
+    dropbox.addEventListener('dragleave', onDragLeave, false);
+    dropbox.addEventListener('drop', onDrop, false);
+  </script>
+</body>
+</html>

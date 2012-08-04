@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+  <title>HTML5 Studio</title>
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Serif|Droid+Sans:regular,bold" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="static/js/modernizr-1.6.min.js"></script>
+  <script src="static/js/jquery-git.js"></script>
+  <script>
+    function supported(fn) {
+      var scripts = document.querySelectorAll('script');
+      var box = $(scripts[ scripts.length - 1 ]).closest('div.box');
+      box.data('support', fn());
+    }
+  </script>
+</head>
+<body class="toc">
+
+  <div id="container">
+    <header>
+
+    </header>
+    <div id="body">
+
+      <div id="stage">
+        <div class="itembar">
+         <!-- <a id="return" class="button" style="float:left;">&larr; return to grid</a> -->
+          <a id="info" class="button flat">⧉ Info</a> 
+          <a id="view_source" class="button">View Source</a> 
+          <a id="download" class="button">Download Sample</a>
+
+          <div class="tooltip" >
+            <div class="top"></div>
+            <h3>Sup tooltip</h3>
+            <p>
+              Yeah thats how we roll..
+            </p>
+            <span class="arrow" >▲</span> 
+            <a href="javascript:UI.tip.out()" class="close">Close</a>
+          </div>
+
+        </div>
+        <iframe src="about:blank" allowtransparency="yes"></iframe>
+      </div> <!-- eo #stage -->
+
+      <aside>
+        <h1 id="title"><span class="normal">HTML</span><span class="five">5</span><span class="rocks">Studio</span></h1> 
+        <p>Hey chief,</p>
+          
+        <p>So the idea here is:</p>
+        <ul>
+          <li>See cool stuff.
+          <li>Learn how it's done.
+          <li>Use it in your own work.
+        </ul>
+
+        <p>The HTML5 Studio has <span id="howmany">twelve</span> demos that show off some fanciful sides of HTML5, CSS3 and friends.</p> 
+
+        <p>Peek around, look under the covers at the source, and feel free to reuse the code in your own applications and sites.</p>
+
+        <p><small style="color: #999">Many samples use experimental HTML5/CSS3 features that may only be present in nightly or beta browsers.</small></p>
+      </aside>
+
+      <section class="controlbar">
+        <!--<div id="toolbar">
+          <a id="return" class="button" style="float:left;">&larr; return to grid</a>
+          <a id="view_source" class="button">View Source</a> 
+          <a id="download" class="button">Download Sample</a>
+          
+        </div> -->
+        <div id="boxes">
+          
+          
+          
+          
+          <div class="box app"><a href="/samples/globe/index.html"><img src="static/img/globe.jpg"><span>WebGL Globe</span></a>
+            <p>A WebGL sphere of news stories. Open stories by clicking. When you find the video, hit <cmd>p</cmd> to play.</p>
+            <ul>
+              <li>WebGL
+              <li>CSS3 2D transforms
+              <li>CSS3 transitions
+              <li>Webm video
+                
+            <script>
+              supported(function() {
+                return Modernizr.webgl && Modernizr.transforms;
+              });
+            </script>  
+                
+          </div>
+          
+         <div class="box app"><a href="/samples/websocket-ascii-video/index.html"><img src="static/img/websocketascii.jpg"><span>ASCII Art</span></a>
+            <p>Synchronized ASCII art video via WebSockets. All current viewers see the same video frame at the same time. Move your mouse over the video to change the color.</p>
+            <ul>
+              <li>HTML5 WebSockets
+
+            <script>
+              supported(function() {
+                return Modernizr.websockets;
+              });
+            </script>
+          </div>
+          
+          
+        <div class="box app"><a href="/samples/orientation/index.html"><img src="static/img/orientation.jpg"><span>Orientation Physics</span></a>
+            <p>Break up a video into lots of boxes and move them around by titling your machine.</p>
+            <ul>
+              <li>Canvas
+              <li>Device Orientation
+              <li>Video
+
+            <script>
+              supported(function() {
+                return Modernizr.canvas && Modernizr.video && Modernizr.orientation && Function.prototype.bind;
+              });
+            </script>
+          </div>
+  
+  
+          
+          <div class="box app"><a href="/samples/svg-puzzle/index.html"><img src="static/img/svgpuzzle.jpg"><span>SVG Puzzle</span></a>
+            <p>Solve the puzzle! Hover over the correct area to place tiles, click to rotate.</p>
+            <ul>
+              <li>SVG
+              <li>SVG Transforms
+              
+            <script>
+              supported(function() {
+                return Modernizr.svg;
+              });
+            </script>
+          </div>
+
+
+
+          <div class="box app"><a href="/samples/notifications-countdown/index.html"><img src="static/img/notificationtime.jpg"><span>Notification Time!</span></a>
+            <p>Schedule a countdown to a notification, like an alarm clock.</p>
+            <ul>
+              <li>Desktop Notifications
+              <li>Date.js
+   
+
+            <script>
+              supported(function() {
+                return window.webkitNotifications;
+              });
+            </script>
+          </div>
+
+          <!-- disable for now x
+
+          <div class="box app"><a href="/samples/tts/index.html"><img src="static/img/tts.jpg"><span>Speech to Speech</span></a>
+            <p>Use Chrome's speech input, get an instant transcription, then translate it, and listen to the result. Hola chica!</p>
+            <ul>
+              <li><code>&lt;input speech></code>
+              <li>Google TTS Webservice
+   
+
+            <script>
+              supported(function() {
+                return Modernizr.speechinput;
+              });
+            </script>
+          </div>
+
+          -->
+          
+          
+          
+          <div class="box app"><a href="/samples/video-player/index.html"><img src="static/img/video.jpg"><span>Video PiP</span></a>
+            <p>Use Picture-in-picture to swap between two video sources while enjoying a color glow effect. Custom pause, mute and progress bar.</p>
+            <ul>
+              <li>HTML5 video
+              <li>Media element API
+              <li>Canvas
+                
+               
+            <script>
+              supported(function() {
+                return Modernizr.video && Modernizr.canvas;
+              });
+            </script>
+            
+          </div>
+          
+          
+          <div class="box app"><a href="/samples/geo/index.html"><img src="static/img/geo.jpg"><span>Geolocation</span></a>
+            <p>Peruse local job listings and envision your commute.</p>
+            <ul>
+              <li>Geolocation
+              <li>Google Base API
+              <li>Google Maps API 
+               
+            <script>
+              supported(function() {
+                return Modernizr.geolocation;
+              });
+            </script>
+            
+          </div>
+          
+          
+          
+          <div class="box app"><a href="/samples/video-cube/index.html"><img src="static/img/cube.jpg"><span>Video Cube</span></a>
+            <p>Build a cube of ASCII reflecting a video in realtime and reposition the view.</p>
+            <ul>
+              <li>HTML5 video
+              <li>Canvas  
+              <li>CSS 2D Transforms
+              <li>CSS3 mask image
+
+            <script>
+              supported(function() {
+                return Modernizr.video && Modernizr.canvas && Modernizr.transforms;
+              });
+            </script>
+          </div>
+
+          
+          <div class="box app"><a href="/samples/css3-col-layout/index.html"><img src="static/img/multicolumns.png"><span>Newspaper Columns</span></a>
+            <p>A newspaper-like layout provided by CSS3. Adjust the sliders to understand the styles.</p>
+            <ul>
+              <li>CSS3 Columns
+              <li>input type=range
+                
+               
+            <script>
+              supported(function() {
+                return Modernizr.inputtypes.range && Modernizr.csscolumns;
+              });
+            </script>
+            
+          </div>
+          
+          <div class="box app"><a href="/samples/audio-podcast/index.html"><img src="static/img/player.jpg"><span>Podcast Player</span></a>
+            <p>Load in podcast feeds dynamically, then listen to episodes in a custom player UI. The player UI is a semi-opaque skin on top of the background color.</p>
+            <ul>
+              <li>HTML5 audio (mp3)
+              <li>Google Feed API
+                
+               
+            <script>
+              supported(function() {
+                return Modernizr.audio && Modernizr.audio.mp3;
+              });
+            </script>
+            
+          </div>
+          
+          
+         
+          <div class="box app"><a href="/samples/coverflow/index.html"><img src="static/img/coverflow.jpg"><span>Slider Carousel</span></a>
+            <p>Image gallery in a carousel UI. Page through the images quickly, and click to view full size.</p>
+            <ul>
+              <li>CSS 2D Transforms
+              <li>CSS 3D Transforms
+              <li>input type=range 
+                
+                
+            <script>
+              supported(function() {
+                return Modernizr.inputtypes.range && Modernizr.csstransforms;
+              });
+            </script>
+            
+          </div>
+          
+          
+          <div class="box app"><a href="/samples/slides/index.html"><img src="static/img/slides.jpg"><span>Slideshow</span></a>
+            <p>A minimal version of the <a href="http://slides.html5rocks.com" target="_blank">HTML5 Slide Deck</a>, ready for you to adapt to your uses.</p>
+            <ul>
+              <li>CSS3 Transitions
+              <li>CSS3 Gradients
+              <li>CSS3 2D Transforms
+                
+            <script>
+              supported(function() {
+                return Modernizr.csstransforms && Modernizr.csstransitions;
+              });
+            </script>
+          </div>
+          
+          
+          <div class="box app"><a href="/samples/page-flip/index.html"><img src="static/img/pageflip.jpg"><span>Page Flip</span></a>
+            <p>An animated page flip of real HTML content.</p>
+            <ul>
+              <li>CSS3 2D transforms
+              <li>CSS3 animation
+            <script>
+              supported(function() {
+                return Modernizr.csstransforms && Modernizr.cssanimations;
+              });
+            </script> 
+          </div>
+
+
+          <div class="box app"><a href="/samples/dnd-fileapi/index.html"><img src="static/img/drag.jpg"><span>Drag n Drop Photos</span></a>
+            <p>Drag files in from your machine, get an instant preview</p>
+            <ul>
+              <li>HTML5 Drag 'n Drop
+              <li>FileReader API
+            <script>
+              supported(function() {
+                return 'draggable' in document.createElement('span') && !!window.FileReader;
+              });
+            </script>
+          </div>
+
+
+
+        </div>
+      </section> <!-- eo section.controlbar -->
+
+    </div> <!-- eo #body -->
+
+    <a href="#" id="boxtrigger">View more</a>
+  </div> <!-- eo #container -->
+
+
+   <footer>
+    <p class="madeby">Made by Google | <img src="./static/img/google_logo_small.png"></p>
+    <a href="/">Home</a> - <a href="//www.html5rocks.com">HTML5 Rocks</a> - <a href="//www.html5rocks.com/tos.html">Terms</a> -
+    <a href="//www.html5rocks.com/privacy.html">Privacy</a> -
+    <a href="https://spreadsheets0.google.com/a/html5rocks.com/viewform?hl=en&formkey=dHB0ekdHa0NyTjhjQWFnUXAtM1VuY0E6MQ#gid=0" target="_blank">Feedback</a> -
+    <a href="http://www.google.com/moderator/#15/e=2a15e&t=2a15e.42">Make a Suggestion</a> - 
+    <a href="http://code.google.com/p/html5rocks/issues/entry">Report Bug</a> - 
+    <a href="http://twitter.com/ChromiumDev">Follow us on Twitter</a>
+
+    <span class="note">This site contains information on APIs that are not part of the current W3C HTML5 specification.</span>
+  </footer>
+
+  <script src="static/js/plugins.js"></script>
+  <script src="static/js/script.js"></script>
+  <script>
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15028909-6']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+</body>
+</html>

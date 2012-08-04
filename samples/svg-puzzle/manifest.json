@@ -1,0 +1,16 @@
+{
+  "name": "SVG Puzzle",
+  "description": "An interactive puzzle based on posters from Google Chrome's 2nd birthday",
+  "version": "0.0.0.1",
+  "icons": {
+    "128": "icon128x128.png"
+  },
+  "app": {
+    "launch": {
+      "local_path": "index.html",
+      "container": "panel",
+      "width": 700,
+      "height": 700
+    }
+  }
+}

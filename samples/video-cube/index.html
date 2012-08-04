@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+
+<head>
+<title>video2ascii in a cube!</title>
+
+<!-- 
+  Tab Atkins created the video to ascii demo for the HTML5 Meetup of the 
+  Silicon Valley Google Technology User Group on July 7th, 2010:
+      http://www.xanthir.com/video/demo3.html
+
+  
+   Brendan Kenny provided some matrix mathematics to project a 3D cube in 2D space
+      
+  Then I added some form controls to add some interactivity.
+      ~ Paul Irish
+-->
+
+<style> 
+html, body, div { margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; display: block; }
+body { font-size: 9px; color: black; background-color: #FAFFF5; background-image: -webkit-gradient(radial, 500 300, 400, 500 300, 40, from(#FAFFF5), to(#aaaaaa)); -webkit-user-select: none; -moz-user-select: none; user-select: none;}
+aside { display: block; position: absolute; top: 20px; left: 20px; font-family: sans-serif; color: #555; }
+div { position: absolute; font-family: monospace; line-height: 1em; white-space: pre; left: 400px; top: 200px; }
+#letter { position: absolute; left: -9001px; font-family: monospace; line-height: 1em; }
+h1 { font-size: 17px; }
+p { font-size: 13px; }
+label, ul { font-size: 14px; }
+canvas { position: absolute; left: -9001px; }
+.fadey #top { -webkit-mask-image: -webkit-gradient(linear, 0% 100%, 0% 0%, from(transparent), color-stop(0.2, transparent), to(white)); }
+.fadey #right { -webkit-mask-image: -webkit-gradient(linear, 100% 100%, 0% 100%, from(white), color-stop(0.8, transparent), to(transparent)); }
+.fadey #bottom { -webkit-mask-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(transparent), color-stop(0.2, transparent), to(white)); }
+.fadey #left { -webkit-mask-image: -webkit-gradient(linear, 0% 100%, 100% 100%, from(white), color-stop(0.8, transparent), to(transparent)); }
+#cube { position: absolute; width: 0; height: 0; top: 290px; left: 500px;}
+.face { position: absolute; overflow: hidden;}
+.face:not(#back) { pointer-events: none; }
+fieldset { border: 0; height: 20px; display: block; line-height: 14px; padding: 4px; }
+.no3d #persp { display: none; }
+input, label { margin: 3px; padding: 1px; }
+#hey { opacity: 0; position: absolute; top: 445px; left: 300px; width: 360px; text-align: center; font-size: 16px; -moz-transition: opacity 0.6s ease-out; -o-transition: opacity 0.6s ease-out; -webkit-transition: opacity 0.6s ease-out; transition: opacity 0.6s ease-out; }
+.unplayed #hey { opacity: 1; }
+</style> 
+
+</head> 
+<body class="unplayed"> 
+
+ 
+ <aside>
+ 
+
+  <fieldset>
+    <label for="res">Adjust resolution:</label>
+    <input type="range" min="2" max="13" id="res" value="8">
+  </fieldset>
+  
+  <fieldset id="perpectiveAdj">
+    <label for="persp">Adjust perspective:</label>
+    <input type="range" min="0" max="100" id="persp" value="0">
+  </fieldset>
+
+  <fieldset>
+    <label for="fadey">Fade the edges: </label>
+    <input type="checkbox" id="fadey">
+  </fieldset>
+  
+ </aside>
+ 
+ <aside id="hey">
+   Hit play. Drag the video around.
+ </aside>
+
+
+<div id='cube'> 
+  <div class="face" id="left"></div> 
+  <div class="face" id="top"></div> 
+  <div class="face" id="right"></div> 
+  <div class="face" id="bottom"></div> 
+  
+ 
+  <video controls="true" loop="true" class="face" id="back" onended="this.play()">
+    
+      <source src="http://studio.html5rocks.com/samples/video-cube/Chrome_ImF.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' /> 
+  
+      <source src="http://studio.html5rocks.com/samples/video-cube/Chrome_ImF.webm" type='video/webm; codecs="vp8, vorbis"' />
+  
+      <source src="http://studio.html5rocks.com/samples/video-cube/Chrome_ImF.ogv" type='video/ogg; codecs="theora, vorbis"' />
+      
+  </video>
+  
+    
+</div> 
+
+
+<canvas id='canvs'></canvas>  <!-- offscreen canvas used to interpret brightness values -->
+<span id="letter">o</span>    <!-- relative size of font determined by size of this offscreen o -->
+
+ 
+<script>
+
+ /**
+  * this script handles creating the cube and its manipulation
+  * it's all by brendan kenny
+  */
+var Matrix4x4 = function() {
+  this.identity();
+};
+
+Matrix4x4.prototype.identity = function() {
+  this.m11 = 1; this.m12 = 0; this.m13 = 0; this.m14 = 0;
+  this.m21 = 0; this.m22 = 1; this.m23 = 0; this.m24 = 0;
+  this.m31 = 0; this.m32 = 0; this.m33 = 1; this.m34 = 0;
+  this.m41 = 0; this.m42 = 0; this.m43 = 0; this.m44 = 1;
+
+  return this;
+};
+
+Matrix4x4.prototype.copy = function(src) {
+  this.m11 = src.m11; this.m12 = src.m12; this.m13 = src.m13; this.m14 = src.m14;
+  this.m21 = src.m21; this.m22 = src.m22; this.m23 = src.m23; this.m24 = src.m24;
+  this.m31 = src.m31; this.m32 = src.m32; this.m33 = src.m33; this.m34 = src.m34;
+  this.m41 = src.m41; this.m42 = src.m42; this.m43 = src.m43; this.m44 = src.m44;
+
+  return this;
+};
+
+Matrix4x4.prototype.multiply = function(view, local) {
+  this.m11 = view.m11*local.m11 + view.m12*local.m21 + view.m13*local.m31 + view.m14*local.m41;
+  this.m12 = view.m11*local.m12 + view.m12*local.m22 + view.m13*local.m32 + view.m14*local.m42;
+  this.m13 = view.m11*local.m13 + view.m12*local.m23 + view.m13*local.m33 + view.m14*local.m43;
+  this.m14 = view.m11*local.m14 + view.m12*local.m24 + view.m13*local.m34 + view.m14*local.m44;
+
+  this.m21 = view.m21*local.m11 + view.m22*local.m21 + view.m23*local.m31 + view.m24*local.m41;
+  this.m22 = view.m21*local.m12 + view.m22*local.m22 + view.m23*local.m32 + view.m24*local.m42;
+  this.m23 = view.m21*local.m13 + view.m22*local.m23 + view.m23*local.m33 + view.m24*local.m43;
+  this.m24 = view.m21*local.m14 + view.m22*local.m24 + view.m23*local.m34 + view.m24*local.m44;
+
+  this.m31 = view.m31*local.m11 + view.m32*local.m21 + view.m33*local.m31 + view.m34*local.m41;
+  this.m32 = view.m31*local.m12 + view.m32*local.m22 + view.m33*local.m32 + view.m34*local.m42;
+  this.m33 = view.m31*local.m13 + view.m32*local.m23 + view.m33*local.m33 + view.m34*local.m43;
+  this.m34 = view.m31*local.m14 + view.m32*local.m24 + view.m33*local.m34 + view.m34*local.m44;
+
+  this.m41 = view.m41*local.m11 + view.m42*local.m21 + view.m43*local.m31 + view.m44*local.m41;
+  this.m42 = view.m41*local.m12 + view.m42*local.m22 + view.m43*local.m32 + view.m44*local.m42;
+  this.m43 = view.m41*local.m13 + view.m42*local.m23 + view.m43*local.m33 + view.m44*local.m43;
+  this.m44 = view.m41*local.m14 + view.m42*local.m24 + view.m43*local.m34 + view.m44*local.m44;
+
+  return this;
+};
+
+Matrix4x4.prototype.rotateX = function(theta) {
+  var cos = Math.cos(theta),
+      sin = Math.sin(theta),
+      c2,
+      c3;
+
+  c2 = cos*this.m12 + this.m13*sin;
+  c3 = cos*this.m13 - this.m12*sin;
+  this.m12 = c2;
+  this.m13 = c3;
+
+  c2 = cos*this.m22 + this.m23*sin;
+  c3 = cos*this.m23 - this.m22*sin;
+  this.m22 = c2;
+  this.m23 = c3;
+
+  c2 = cos*this.m32 + this.m33*sin;
+  c3 = cos*this.m33 - this.m32*sin;
+  this.m32 = c2;
+  this.m33 = c3;
+
+  c2 = cos*this.m42 + this.m43*sin;
+  c3 = cos*this.m43 - this.m42*sin;
+  this.m42 = c2;
+  this.m43 = c3;
+
+  return this;
+};
+
+Matrix4x4.prototype.rotateY = function(theta) {
+  var cos = Math.cos(theta),
+      sin = Math.sin(theta),
+      c1,
+      c3;
+
+  c1 = cos*this.m11 - this.m13*sin;
+  c3 = cos*this.m13 + this.m11*sin;
+  this.m11 = c1;
+  this.m13 = c3;
+
+  c1 = cos*this.m21 - this.m23*sin;
+  c3 = cos*this.m23 + this.m21*sin;
+  this.m21 = c1;
+  this.m23 = c3;
+
+  c1 = cos*this.m31 - this.m33*sin;
+  c3 = cos*this.m33 + this.m31*sin;
+  this.m31 = c1;
+  this.m33 = c3;
+
+  c1 = cos*this.m41 - this.m43*sin;
+  c3 = cos*this.m43 + this.m41*sin;
+  this.m41 = c1;
+  this.m43 = c3;
+
+  return this;
+};
+
+Matrix4x4.prototype.rotateZ = function(theta) {
+  var cos = Math.cos(theta),
+      sin = Math.sin(theta),
+      c1,
+      c2;
+
+  c1 = cos*this.m11 + this.m12*sin;
+  c2 = cos*this.m12 - this.m11*sin;
+  this.m11 = c1;
+  this.m12 = c2;
+
+  c1 = cos*this.m21 + this.m22*sin;
+  c2 = cos*this.m22 - this.m21*sin;
+  this.m21 = c1;
+  this.m22 = c2;
+
+  c1 = cos*this.m31 + this.m32*sin;
+  c2 = cos*this.m32 - this.m31*sin;
+  this.m31 = c1;
+  this.m32 = c2;
+
+  c1 = cos*this.m41 + this.m42*sin;
+  c2 = cos*this.m42 - this.m41*sin;
+  this.m41 = c1;
+  this.m42 = c2;
+
+  return this;
+};
+
+Matrix4x4.prototype.translate = function(tx, ty, tz) {
+  this.m14 += this.m11*tx + this.m12*ty + this.m13*tz;
+  this.m24 += this.m21*tx + this.m22*ty + this.m23*tz;
+  this.m34 += this.m31*tx + this.m32*ty + this.m33*tz;
+  this.m44 += this.m41*tx + this.m42*ty + this.m43*tz;
+
+  return this;
+};
+
+// taken from or based on relevant parts of Modernizr
+var testr = (function() {
+  
+  var ret = {},
+      props2d = ['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'],
+      props3d = ['perspective', 'WebkitPerspective', 'MozPerspective', 'OPerspective', 'msPerspective'],
+      elem = document.createElement('div'),
+      e_style = elem.style,
+      
+      testMediaQuery = function(mq) {
+        var st = document.createElement('style'),
+            ret;
+
+        st.textContent = mq + '{#modernizr{height:3px}}';
+        (document.head || document.getElementsByTagName('head')[0]).appendChild(st);
+        elem.id = 'modernizr';
+        document.documentElement.appendChild(elem);
+
+        ret = elem.offsetHeight === 3;
+
+        st.parentNode.removeChild(st);
+        elem.parentNode.removeChild(elem);
+
+        return !!ret;
+      };
+  
+  ret.transform2d = false;
+  ret.transform2dProp = '';
+  
+  // 2d transform support
+  for (var i = 0; i < props2d.length; i++){
+    if (e_style[props2d[i]] !== undefined) {
+      ret.transform2dProp = props2d[i];
+      ret.transform2d = true;
+      break;
+    }
+  }
+  
+  // test whether a unit is needed for translation entries in
+  // transformation matrix. firefox currently needs this.
+  if (ret.transform2d) {
+    e_style[ret.transform2dProp] = 'matrix(1,0,0,1,1,1)';
+    ret.translateUnit = e_style[ret.transform2dProp].indexOf('matrix') === -1;
+  }
+  
+  // 3d transform support
+  ret.transform3d = false;
+  ret.perspectiveProp = '';
+  for (var i = 0; i < props3d.length; i++){
+    if (e_style[props3d[i]] !== undefined) {
+      ret.perspectiveProp = props3d[i];
+      ret.transform3d = true;
+      break;
+    }
+  }
+  
+  // double check 3d on webkit
+  if (ret.transform3d && 'webkitPerspective' in document.documentElement.style) {
+    ret.transform3d = testMediaQuery('@media (transform-3d),(-o-transform-3d),(-moz-transform-3d),(-ms-transform-3d),(-webkit-transform-3d),(modernizr)');
+  }
+  
+  return ret;
+})();
+
+function makeCubeGo() {
+  // if no transform property, just give up now
+  if (!testr.transform2d) {
+    return;
+  }
+  
+  var leftMat = new Matrix4x4(),
+      topMat = new Matrix4x4(),
+      rightMat = new Matrix4x4(),
+      bottomMat = new Matrix4x4(),
+      backMat = new Matrix4x4(),
+ 
+      cubeMat = new Matrix4x4(),
+      tmpMat = new Matrix4x4(),
+ 
+      leftDiv = document.getElementById('left'),
+      topDiv = document.getElementById('top'),
+      rightDiv = document.getElementById('right'),
+      bottomDiv = document.getElementById('bottom'),
+      backDiv = document.getElementById('back'),
+      
+      translateUnit = testr.translateUnit ? 'px' : '',
+      
+      // use 3d transforms when available
+      transformFace = testr.transform3d ? transformFace3d : transformFace2d;
+ 
+  // center faces on origin of parent
+  function setFaceSize(faceDiv, w, h) {
+    faceDiv.style.width = w + 'px';
+    faceDiv.style.left = -w/2 + 'px';
+    faceDiv.style.height = h + 'px';
+    faceDiv.style.top = -h/2 + 'px';
+  }
+  
+  // take 3d matrix and set 2d version on a face
+  function transformFace2d(faceDiv, matrix, isBackFace) {
+    var faceStyle = faceDiv.style,
+    
+        // scientific notation hurts us, precious
+        str = 'matrix(' +
+                matrix.m11.toFixed(10) + ',' +
+                matrix.m21.toFixed(10) + ',' +
+                matrix.m12.toFixed(10) + ',' +
+                matrix.m22.toFixed(10) + ',' +
+                matrix.m14.toFixed(10) + translateUnit + ',' +
+                matrix.m24.toFixed(10) + translateUnit + ')';
+    
+    faceStyle[testr.transform2dProp] = str;
+    
+    // z-index based on depth of middle of face for proper stacking
+    faceStyle.zIndex = ~~(matrix.m34 * 10 + 4000);
+  }
+  
+  // take 3d matrix and set on a face
+  function transformFace3d(faceDiv, matrix, isBackFace) {
+    var faceStyle = faceDiv.style,
+    
+        // scientific notation hurts us, precious
+        // units not needed in matrix3d, but may change in the future
+        // it may be faster to construnct a WebKitCSSMatrix and call toString()
+        str = 'matrix3d(' +
+                matrix.m11.toFixed(10) + ',' +
+                matrix.m21.toFixed(10) + ',' +
+                matrix.m31.toFixed(10) + ',' +
+                matrix.m41.toFixed(10) + ',' +
+                matrix.m12.toFixed(10) + ',' +
+                matrix.m22.toFixed(10) + ',' +
+                matrix.m32.toFixed(10) + ',' +
+                matrix.m42.toFixed(10) + ',' +
+                matrix.m13.toFixed(10) + ',' +
+                matrix.m23.toFixed(10) + ',' +
+                matrix.m33.toFixed(10) + ',' +
+                matrix.m43.toFixed(10) + ',' +
+                matrix.m14.toFixed(10) + ',' +
+                matrix.m24.toFixed(10) + ',' +
+                matrix.m34.toFixed(10) + ',' +
+                matrix.m44.toFixed(10) + ')';
+                
+    faceStyle[testr.transform2dProp] = str;
+  }
+  
+  // write current transform state to elements
+  function writeTransforms() {
+    tmpMat.multiply(cubeMat, leftMat);
+    transformFace(leftDiv, tmpMat);
+    
+    tmpMat.multiply(cubeMat, backMat);
+    transformFace(backDiv, tmpMat, true);
+    
+    tmpMat.multiply(cubeMat, rightMat);
+    transformFace(rightDiv, tmpMat);
+    
+    tmpMat.multiply(cubeMat, topMat);
+    transformFace(topDiv, tmpMat);
+    
+    tmpMat.multiply(cubeMat, bottomMat);
+    transformFace(bottomDiv, tmpMat);
+  }
+  
+  var dragging, lastX, lastY,
+      angleX = 0,
+      angleY = 0;
+      
+  function dragStart(event) {
+    if (event.target.tagName != 'INPUT') {
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+    }
+  }
+ 
+  function dragMove(event) {
+    if (dragging) {
+      var x = event.clientX,
+          y = event.clientY,
+          deltaX = lastX - x,
+          deltaY = y - lastY;
+      
+      // made up hacky scale factors
+      angleX -= deltaX * Math.PI / 900;
+      angleY -= deltaY * Math.PI / 900;
+      
+      cubeMat.identity().rotateY(angleX).rotateX(angleY);
+      writeTransforms();
+      
+      lastX = x;
+      lastY = y;
+    }
+  }
+ 
+  function dragEnd(event) {
+    dragging = false;
+  }
+  
+  // set cube's size at any time (exposed on window below)
+  function setCubeSize(width, height, depth) {
+    setFaceSize(leftDiv, depth, height);
+    setFaceSize(backDiv, width, height);
+    setFaceSize(rightDiv, depth, height);
+    setFaceSize(topDiv, width, depth);
+    setFaceSize(bottomDiv, width, depth);
+    
+    var halfPi = Math.PI / 2;
+    leftMat.identity().translate(-width/2, 0, depth/2).rotateY(-halfPi);
+    backMat.identity().translate(0, 0, 0);
+    rightMat.identity().translate(width/2, 0, depth/2).rotateY(halfPi);
+    topMat.identity().translate(0, -height/2, depth/2).rotateX(halfPi);
+    bottomMat.identity().translate(0, height/2, depth/2).rotateX(-halfPi);
+    
+    writeTransforms();
+  }
+  
+  // set width, height, depth of cube
+  setCubeSize(512, 288, 288);
+  window.setCubeSize = setCubeSize;
+  
+  document.addEventListener('mousedown', dragStart, false);
+  document.addEventListener('mousemove', dragMove, false);
+  document.addEventListener('mouseup', dragEnd, false);
+}
+ 
+document.addEventListener('DOMContentLoaded', makeCubeGo, false);
+ 
+</script> 
+ 
+
+
+
+<script>
+  /**
+   * this script handles creating an ascii version of the video and outputting it.
+   * it's written by tab atkins then hacked up by paul irish
+   */
+   
+  var lw, lh, cw, ch, back, backcontext, out0, out1, out2, out3, cube,
+  
+      ascii = '@GLftli;:,.  ',
+
+      l  = document.querySelector('#letter'),
+      v  = document.querySelector('#back'),
+      
+      draw = function(v, bc, w, h) {
+      	// as of pp7, ie9 throws a security exception for imageData of drawn video element
+      	try {
+      	  bc.drawImage(v, 0, 0, w, h);
+      	  var imgData = bc.getImageData(0, 0, w, h).data;
+      	  draw = drawAscii;
+    	  } catch(e) {
+    	    draw = drawBackup;
+    	  }
+
+    	  draw(v, bc, w, h);
+      };
+
+  function domReady(){
+    lw = l.offsetWidth;
+    lh = l.offsetHeight;
+    cw = Math.floor(v.offsetWidth /lw);
+    ch = Math.floor(v.offsetHeight/lh);
+    back = document.querySelector("#canvs");
+    backcontext = back.getContext('2d');
+    
+    // output to the cube faces
+    out0 = document.querySelector("#left");
+    out1 = document.querySelector("#top");
+    out2 = document.querySelector("#right");
+    out3 = document.querySelector("#bottom");
+    cube = document.querySelector('#cube');
+  }
+
+  function drawAscii(v, bc, w, h) {
+  	if(v.paused || v.ended)	return false;
+  	
+  	// First, draw the into the backing canvas
+  	bc.drawImage(v, 0, 0, w, h);
+  	
+  	// Grab the pixel data from the backing canvas
+  	var data = bc.getImageData(0, 0, w, h).data;
+  	
+  	var chars = '',
+  	    px = 0,
+  	    pxlen = w*h*4;
+  	
+  	// Loop through the pixels
+  	for(var ih = 0; ih < h; ih++) {
+  		for(var iw = 0; iw < w; iw++) {
+  			// Convert the color into an appropriate character based on luminance
+  			// magic numbers depend on ascii string length of 13, so scale accordingly
+  			chars += ascii[(62*data[px++]+123*data[px++]+23*data[px++])>>>12];
+  			px++; // don't need alpha
+  		}
+  		  chars += '\n';
+  	}
+  	
+  	// Write the char data into the output divs
+  	out0.textContent = chars;
+  	out1.textContent = chars;
+  	out2.textContent = chars;
+  	out3.textContent = chars;
+  	
+  	// Start over!
+  	setTimeout(function(){ draw(v,bc,w,h); }, 0);
+  }
+  
+  function drawBackup() {
+    out0.style.backgroundColor = '#ccc';
+    out1.style.backgroundColor = '#ccc';
+    out2.style.backgroundColor = '#ccc';
+    out3.style.backgroundColor = '#ccc';
+  }
+
+  addEventListener('DOMContentLoaded',domReady,false);
+  
+  v.addEventListener("play", function(e){  
+  	cw = Math.floor(v.offsetWidth/lw);
+  	ch = Math.floor(v.offsetHeight/lh);
+  	back.width = cw;
+  	back.height = ch;
+  	draw(this, backcontext, cw, ch);
+  },false);
+
+  document.querySelector('#res').addEventListener('change', function(e){  
+    v.pause();
+    document.body.style.fontSize = e.target.value + 'px';
+    domReady();
+    // pause added to let the DOM catch up.
+    setTimeout(function(){
+        v.play();
+    }, 10);
+  }, false);
+  
+  function setPerspective(t) {
+    var persp = 50000 * Math.exp(-5.20387 * t);
+    cube.style[testr.perspectiveProp] = persp;
+  }
+  
+  // perspective slider
+  var perspSlider = document.querySelector('#persp');
+  if (testr.transform3d) {
+    
+    perspSlider.addEventListener('change', function(e){  
+      setPerspective(e.target.value / 100);
+    }, false);
+    
+    // set initial value
+    setPerspective(perspSlider.value);
+    
+  } else {
+    perspSlider.className += ' no3d';
+  }
+
+  document.querySelector('input[type="checkbox"]').addEventListener('change', function(e) {  
+    document.body.className = '' + (e.target.checked ? 'fadey' : '');
+  }, false);
+  
+  document.body.addEventListener('mouseup', function f() {
+    this.removeEventListener('mouseup', f, false);
+    document.body.className = document.body.className.replace('unplayed', '');
+  }, false);
+  
+</script>
+
+
+
+</body> 
+</html>

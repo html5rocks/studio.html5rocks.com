@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Michael Mahemoff
+ * Modified: Ernest Delgado
+-->
+<!-- theme http://www.colourlovers.com/palette/588222/royal --> 
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+<title>Notifications Countdown</title>
+<style>
+body { margin: 10px; font-family: sans-serif; }
+#statusWrapper { background: #eef; margin: 1em 0; padding: 0.5em; font-size: x-small; text-align: right; }
+#request { text-align: center; font-size: 24pt; margin-top: 75px; }
+#request, #request input { font-size: 24pt; }
+#request input { text-align: center; color: #77a; }
+#request p { margin: 0.2em 0; }
+#request button { border: 5px inset #d60; font-size: 24px; background: #e60; color: white; }
+@-webkit-keyframes pulse {
+ from { margin-right: 400px; }
+ to { margin-right: 0; }
+}
+#status.visible {
+  -webkit-animation-name: pulse;
+  -webkit-animation-duration: 0.3s;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-direction: normal;
+}
+</style>
+<script src="date.js" type="text/javascript" charset="utf-8"></script>
+<script> 
+var timer, notifications = window.webkitNotifications;
+window.onload = function() {
+  document.querySelector("#request input").addEventListener('click', function() { this.select(); }, false);
+  status((notifications ?
+      "Yay! Notifications are" : "Sorry. Notifications aren't")
+      + " supported on this browser");
+ 
+  function ensurePermission(callback) {
+    if (notifications.checkPermission() == 0) {
+      callback();
+    } else {
+      notifications.requestPermission(function() {
+        if (notifications.checkPermission() == 0) callback();
+      });
+    }
+  }
+ 
+  document.querySelector("#scheduleIt").addEventListener('click', function() { 
+    ensurePermission(scheduleNotification);
+  }, false);
+ 
+  function scheduleNotification() {
+    var timeValue = document.querySelector("#timeString").value;
+    var triggerTime = Date.parse(timeValue);
+    if (!triggerTime) {
+      status("Sorry, I didn't understand when you want the notification. Enter &quot;2 minutes&quot; for example.");
+      return;
+    }
+    status("Roger that! I'll ping you in "+ timeValue +" ...", true);
+    var notification = window.webkitNotifications.createNotification("", document.querySelector("#message").value, "Doesn't HTML5 just rock?");
+    var remaining = triggerTime.getTime() - (new Date()).getTime();
+    console.log(triggerTime, triggerTime.getTime(),(new Date()).getTime(), remaining);
+    if (remaining < 2000) remaining = 2000;
+    clearTimeout(timer);
+    timer = setTimeout(function() { notification.show(); }, remaining);
+  }
+ 
+  function status(message, shouldFlourish) {
+    var m = message.replace(/ /g, "&nbsp;");
+    var statusEl = document.querySelector("#status");
+    statusEl.innerHTML = m;
+    if (shouldFlourish) {
+      statusEl.className = 'visible';
+      setTimeout(function() {
+        document.querySelector("#status").className = '';
+      }, 1500);
+    }
+  }
+ 
+};
+</script> 
+</head> 
+<body> 
+<div id="statusWrapper"><span id="status"></span></div> 
+<div id="request"> 
+  <p>Remind me to</p> 
+  <p> 
+    <input id="message" value="wake up!" /> 
+  </p> 
+  <p>in</p> 
+  <p> 
+    <input id="timeString" value="5 seconds" /> 
+  </p> 
+  <p> 
+    <button id="scheduleIt">Go!</button> 
+  </p> 
+</div> 
+</body>

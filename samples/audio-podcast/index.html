@@ -1,0 +1,116 @@
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Michael Mahemoff
+ *         Eric Bidelman <ericbidelman@chromiumg.org>
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+    <title>HTML5 Audio Podcast Player Sample</title>
+    <link href="http://fonts.googleapis.com/css?family=Molengo|Cantarell:regular,bold" rel="stylesheet" type="text/css" />
+    <link href="styles.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    
+    <div id="main">
+      <audio id="player"></audio>
+
+      <select id="feeds">
+        <option value="http://www.npr.org/rss/podcast.php?id=510286">NPR: Science</option>
+        <option value="http://rss.cnn.com/services/podcasting/newscast/rss">CNN Daily Updates</option>
+        <option value="http://rss.sciam.com/sciam/science-talk">Scientific American Podcast</option>
+        <option value="http://www.nasa.gov/rss/TWAN_podcast.rss">NASA weekly updates</option>
+      </select>
+
+      <div id="playerControls" class="vbox center">
+        <a id="play_button" href="javascript:" class="vista black disable">Play</a>
+        <a id="right_arrow" href="javascript:" class="arrow vista black" onclick="player.playNext();" title="Next unplayed episode" alt="Next unplayed episode">&raquo;</a>
+        <input id="volume_control" type="range" step="0.05" min="0" max="1" value="1"/>
+        <div id="progressbg"><div id="progressbar"></div></div>
+        <ul id="episodes"></ul>
+      </div>
+    </div>
+    <small id="compatibilityMsg"></small>
+    <small><label>Change skin color: <input type="range" min="0" max="359" value="0" onchange="HSLit(this);"></label></small>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="http://www.google.com/jsapi"></script>
+    <script src="podcast.js"></script>
+    <script>
+    
+      function HSLit(elem) {
+        document.body.style.backgroundColor = 'hsl('+elem.value+',25%, 30%)'; 
+      }
+      
+      $('#compatibilityMsg').html('Your browser <strong>' + ($('#player').get(0).canPlayType('audio/mpeg') != '' ? 'can' : 'cannot') + '</strong> play .mp3 files using HTML5 audio');
+
+      $('#play_button').click(function(e) {
+        player.playPause(this);
+      });
+
+      var player = new PodcastPlayer('player', 'play_button');
+
+      google.load('feeds', '1');
+      google.setOnLoadCallback(function() {
+        $('#feeds').change(function() {
+          player.loadFeed(this.value);
+        }).change();
+
+        $('#episodes').click(function(e) {
+          var $li = $(e.target).closest('li');
+          if (!$li.hasClass('playing') && $li.index() > 0) {
+            player.switchAudio($li);
+            $('#play_button').removeClass('disable');
+          }
+          return false;
+        });
+
+        $('#progressbg').click(function(e) {
+          player.seekIntoAudio((e.offsetX / $(this).width()));
+        });
+
+        $('body').keydown(function(e) {
+          if (e.which == 32) {
+            player.playPause($('#play_button'));
+            e.preventDefault();
+          } else if (e.which == 38) {  // up arrow
+             var currentVol = parseFloat($('#volume_control').val());
+             if (currentVol < parseFloat($('#volume_control').attr('max'))) {
+               var newVol = currentVol + 0.1;
+               player.setVolume(newVol);
+               $('#volume_control').val(newVol);
+             }
+          } else if (e.which == 39) {  // right arrow
+             player.playNext();
+             e.preventDefault();
+          } else if (e.which == 40) {  // down arrow
+            var currentVol = parseFloat($('#volume_control').val());
+            if (currentVol > parseFloat($('#volume_control').attr('min'))) {
+              var newVol = currentVol - 0.1;
+              player.setVolume(newVol);
+              $('#volume_control').val(newVol);
+            }
+          }
+        });
+
+        $('#volume_control').change(function(e) {
+          player.setVolume(this.value);
+        });
+      });
+    </script>
+  </body>
+</html>

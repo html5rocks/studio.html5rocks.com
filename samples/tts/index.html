@@ -1,0 +1,197 @@
+<!--
+ * Copyright (c) 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Eric Bidelman <ericbidelman@chromiumg.org>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<title>Speech2Text &amp;&amp; Text2Speech</title>
+<link href='http://fonts.googleapis.com/css?family=Cantarell:regular,bold' rel='stylesheet' type='text/css' />
+<style>
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-align: stretch;
+
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  -moz-box-align: stretch;
+
+  display: box;
+  box-orient: vertical;
+  box-align: stretch;
+
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  box-pack: center;
+
+  text-align: center;
+  background: -moz-linear-gradient(90deg, #000222, #fff, #000222);
+  background: -webkit-gradient(linear, left top, left bottom,
+                               from(#000222), color-stop(0.5, transparent), to(#000222));
+}
+audio {
+ display: none;
+}
+#msg {
+  color: #888;
+  margin: 10px;
+  font: 12px Myriad, sans-serif;
+}
+input {
+  height: 75px;
+  width: 75%;
+  font-size: 20pt;
+  -moz-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  padding: 5px 15px;
+}
+div {
+  margin-top: 10px;
+}
+#translationText {
+  margin-top: 20px;
+  font-family: 'Cantarell';
+  font-size: 35px;
+  text-shadow: 1px 1px 0 white;
+}
+</style>
+</head>
+<body>
+
+<input type="speech" id="txt" x-webkit-speech speech />
+
+<div id="msg">
+  This demo performs txt2speech/speech2txt using the Google Translate API,
+  HTML5 &lt;audio&gt;, and &lt;input speech&gt;.
+</div>
+
+<div>
+  <select id="lang" alt="Accent" title="Accent">
+    <option selected value="en">English</option>
+    <option value="" disabled>_____</option>
+    <option value="zh">Chinese</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+    <option value="el">Greek</option>
+    <option value="it">Italian</option>
+    <option value="ja">Japanese</option>
+    <option value="ko">Korean</option>
+    <option value="ru">Russian</option>
+    <option value="es">Spanish</option>
+  </select>
+</div>
+
+<audio id="voice" type="audio/mpeg" autobuffer autoplay></audio>
+<div id="translationText"></div>
+<script id="translateScript"></script>
+
+<script>
+var lang = localStorage.lang || 'en';  // Default to English.
+if (!localStorage.lang) {
+  localStorage.lang = lang;
+}
+var txtInput = document.querySelector('#txt');
+var destLang = document.querySelector('#lang');
+var transTxt = document.querySelector('#translationText');
+var srcLang = 'en';
+
+var PHRASES = [
+  'How am I supposed to pronounce that?',
+  "What's the matter. Got nothing good to say?",
+  'Feed me Seemore! I need some text dummy!'
+];
+
+destLang.value = localStorage.lang;
+
+function handleTranslate(resp) {
+  if (resp.responseStatus == 200) {
+    var translatedText = resp.responseData.translatedText;
+
+    transTxt.innerHTML = translatedText;
+
+    // Undocumented Google Translate API.
+    var url = ['http://translate.google.com/translate_tts?tl=', destLang.value,
+               '&q=', encodeURIComponent(translatedText)].join('');
+
+    var voice = document.querySelector('#voice');
+    voice.src = url;
+    voice.play();
+  }
+}
+
+function tts(txt, lang) {
+  if (!txt) {
+    txt = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+  }
+
+  var translateUrl = [
+      'http://ajax.googleapis.com/ajax/services/language/translate?v=1.0',
+      '&q=', encodeURIComponent(txt), '&langpair=en|', lang,
+      '&callback=handleTranslate'].join('');
+
+  transTxt.textContent = '...';
+
+  if (document.querySelector('#translateScript')) {
+    document.body.removeChild(document.querySelector('#translateScript'));
+  }
+  var script = document.createElement('script');
+  script.src = translateUrl;
+  script.id = 'translateScript';
+  document.body.appendChild(script);
+}
+
+
+function inputChange(e) {
+  if (e.type == 'webkitspeechchange' && e.results) {
+    console.log('Results: ' + e.results.length)
+    for (var i = 0, result; result = e.results[i]; ++i) {
+      console.log(result.utterance, result.confidence);
+    }
+  }
+  tts(this.value, lang);
+}
+
+txtInput.addEventListener('change', inputChange, false);
+txtInput.addEventListener('webkitspeechchange', inputChange, false);
+//txtInput.addEventListener('speechchange', inputChange, false);
+
+destLang.addEventListener('change', function(e) {
+  lang = this.value;
+  localStorage.lang = lang;
+  tts(txtInput.value, lang);
+}, false);
+
+// Auto-load from hash (e.g. #txt=hello).
+if (document.location.hash) {
+  var txt = decodeURIComponent(
+      document.location.hash.substring(1).split('=')[1]);
+  txtInput.value = txt;
+  tts(txt, lang);
+}
+</script>
+</body>
+</html>

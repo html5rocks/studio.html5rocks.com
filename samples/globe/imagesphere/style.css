@@ -1,0 +1,285 @@
+
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section { 
+    display:block;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+  background-color: rgb(51,51,51);
+  overflow-y: hidden;
+  
+  font-family: Nobile, arial,sans-serif; 
+  
+         /* lets see if we can get some hardware accel on this    
+        -webkit-transform: translateZ(0); unstable.  */
+}
+
+
+#uiContainer {
+  z-index: 2;
+  padding: 1em;
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  width: 250px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 10px;
+  font-family: Nobile, sans-serif;
+}
+#ui > div {
+  margin-bottom: 13px;
+  background: rgba(200,200,200,0.8);
+  border-radius: 3px;
+  color: black;
+  padding:  3px 10px;
+}
+#ui input {
+  width: 100%;
+}
+#fpsContainer {
+  position: absolute;
+  z-index: 20px;
+  bottom: 5px;
+  left: 10px;
+  color: white;
+  font-family: sans-serif;
+}
+
+/* hbox and vbox classes */
+ 
+.hbox {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	-webkit-box-align: stretch;
+ 
+	display: -moz-box;
+	-moz-box-orient: horizontal;
+	-moz-box-align: stretch;
+ 
+	display: box;
+	box-orient: horizontal;
+	box-align: stretch;
+}
+ 
+.hbox > * {
+	-webkit-box-flex: 0;
+	-moz-box-flex: 0;
+	box-flex: 0;
+	display: block;
+}
+ 
+.vbox {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-box-align: stretch;
+ 
+	display: -moz-box;
+	-moz-box-orient: vertical;
+	-moz-box-align: stretch;
+ 
+	display: box;
+	box-orient: vertical;
+	box-align: stretch;
+}
+ 
+.vbox > * {
+	-webkit-box-flex: 0;
+	-moz-box-flex: 0;
+	box-flex: 0;
+	display: block;
+}
+ 
+.spacer {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}
+ 
+.reverse {
+	-webkit-box-direction: reverse;
+	-moz-box-direction: reverse;
+	box-direction: reverse;
+}
+ 
+.boxFlex0 {
+	-webkit-box-flex: 0;
+	-moz-box-flex: 0;
+	box-flex: 0;
+}
+ 
+.boxFlex1, .boxFlex {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}
+ 
+.boxFlex2 {
+	-webkit-box-flex: 2;
+	-moz-box-flex: 2;
+	box-flex: 2;
+}
+ 
+.boxGroup1 {
+	-webkit-box-flex-group: 1;
+	-moz-box-flex-group: 1;
+	box-flex-group: 1;
+}
+ 
+.boxGroup2 {
+	-webkit-box-flex-group: 2;
+	-moz-box-flex-group: 2;
+	box-flex-group: 2;
+}
+ 
+.start {
+	-webkit-box-pack: start;
+	-moz-box-pack: start;
+	box-pack: start;
+}
+ 
+.end {
+	-webkit-box-pack: end;
+	-moz-box-pack: end;
+	box-pack: end;
+}
+ 
+.center {
+	-webkit-box-pack: center;
+	-moz-box-pack: center;
+	box-pack: center;
+}
+
+.aligncenter {
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	box-align: center;
+}
+
+
+canvas {
+
+  cursor: pointer;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  user-select:none;
+  
+  opacity: 1;
+  
+     -moz-transition: none 0.7s ease-out;  
+       -o-transition: none 0.7s ease-out;  
+  -webkit-transition: none 0.7s ease-out;  
+          transition: none 0.7s ease-out;   
+          
+  -moz-transition-property:     -moz-transform, opacity;
+  -webkit-transition-property: -webkit-transform, opacity;
+  -o-transition-property:       -o-transform, opacity;
+  transition-property:          transform, opacity;
+    
+}
+
+.storyopen canvas {
+   -webkit-transform : translate(-150px, -10px);
+}
+
+.init canvas { 
+  opacity: 0;
+}
+
+.prettybox {
+  font-size: 20px; text-shadow: rgba(20,20,20,0.9) 1px 1px 3px; 
+  color: white; background: rgba(30,30,30,0.8); padding: 20px; border-radius: 10px; 
+  -webkit-box-shadow: white 0px 0px 15px inset; overflow-y: auto; overflow-x: hidden; 
+}
+
+
+#welcome { position:absolute; min-height: 320px; width: 320px; font-size: 18px; z-index: -1; opacity: 0;
+                             margin: -200px 0 0    -150px; left: 50%; top: 50%; overflow:hidden;
+         
+            -moz-transition: none 0.3s ease-out;  
+              -o-transition: none 0.3s ease-out;  
+         -webkit-transition: none 0.3s ease-out;  
+                 transition: none 0.3s ease-out;
+                             }
+.init #welcome { opacity: 1; z-index: 10;}
+.init canvas { cursor: default;}
+
+#welcome img {  height: 107px; }
+#welcome h1 { margin: 0 0 15px; text-align: center;}
+#welcome h1 span { font-size: 72px; }
+#welcome a { font-size: 24px; margin: 17px auto; text-align: center; display:block;}
+
+#story { width: 1000px; height: 800px; position:absolute;  left: 50%; top: 50%; 
+         padding: 18px;  -webkit-transform : scale(0.001); overflow: hidden;
+     -moz-transition: none .71s ease-out;  
+       -o-transition: none .71s ease-out;  
+  -webkit-transition: none .71s ease-out;  
+          transition: none .71s ease-out;   
+          
+  -moz-transition-property:     top, left, -moz-transform;
+  -webkit-transition-property:  top, left, -webkit-transform;
+  -o-transition-property:       top, left, -o-transform;
+  transition-property:          top, left, transform;
+}
+#story .close { height: 29px; position: absolute; right: -3px; top: -2px; width: 28px; cursor: pointer;}
+
+.storyopen #story {
+   -webkit-transform : scale(1);
+}
+
+#story p { font-family: Nobile, sans-serif; font-size: 16px; font-weight: normal;}
+
+#storyinner { overflow:auto; height: 100%; padding-left: 9px;} 
+#story h3 {
+  /* -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis; */
+}
+
+#story img { width: 97%; }
+#uiContainer img {   width: 35px; }
+
+#logo { position:absolute; top: 15px; left: 15px; width: 300px;}
+.init #logo ,
+.init #uiContainer {
+  display:none; 
+}
+
+#uiContainer  {
+  max-width: 35px;
+  max-height: 50px;
+  overflow:hidden; 
+   -moz-transition: all 0.3s ease-out;  
+     -o-transition: all 0.3s ease-out;  
+-webkit-transition: all 0.3s ease-out;  
+        transition: all 0.3s ease-out;  
+        
+    /* lets see if we can get some hardware accel on this */    
+   -webkit-transform: translateZ(0);
+}
+
+#uiContainer #ui {
+  margin-bottom: 61px;
+  font-size: 14px;
+  clear:both;
+  opacity: 0;
+  -moz-transition: opacity 0.3s ease-out; -o-transition: opacity 0.3s ease-out; -webkit-transition: opacity 0.3s ease-out; transition: opacity 0.3s ease-out;
+}
+
+#uiContainer.open  {  max-width: 150px;  max-height: 480px }
+#uiContainer.open #ui { opacity: 1; }
+
+.ui-slider .ui-slider-handle { width: 0.6em; height: 0.9em; }
+.ui-slider-horizontal { height: 0.4em; }
+
+
+
+

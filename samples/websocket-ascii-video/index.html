@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Malte Ubl <malteubl@google.com>
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+    <title>ASCII Art WebSocket Video Streaming</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+        background: black;
+        overflow-y: hidden;
+        font-family: Courier;
+        font-size: 9px;
+        background-color: black;
+        color: white
+      }
+      #controls {
+        background-color:white;
+        width:600px;
+        padding:5px;
+      }
+      #scrubBar {
+        width:100%;
+      }
+    </style>
+    <script> 
+    function run() {
+      var scrubBar = document.getElementById('scrubBar');
+      var pre = document.getElementById('canvas');
+      var scrubbing = false;
+
+      // Connect to the web socket service
+      var conn = new WebSocket('ws://socket.no.de/video');
+
+      // We just display errors on the main canvas
+      conn.onerror = function(error) {
+        pre.textContent = "Error "+error;
+      };
+
+      // Receive a message.
+      // The frame number is drawn to the scrubBar - range input
+      // The actual video frame is just written to a pre element's textContent
+      conn.onmessage = function(e) {
+        var frame = JSON.parse(e.data);
+        pre.textContent = frame.data;
+        if (!scrubbing) { // Set the current playback value on the scrubBar unless we are currently scrubbing
+          scrubBar.value = frame.index;
+        }
+      };
+
+      // We are open
+      conn.onopen = function() {
+        pre.textContent = "Open";
+      };
+
+      // When the user changes the value of the scrubBar range control, send the value to the server
+      scrubBar.addEventListener('change', function() {
+        if (conn.readyState === 1) { // we are open
+          conn.send(this.value);
+        }
+      }, true);
+
+      // When the user executes a mousedown event on the scrubBar, block set the global 'scrubbing' variable to true
+      scrubBar.addEventListener('mousedown', function() {
+        scrubbing = true;
+      }, true);
+
+      // When the user executes a mousedown event on the scrubBar, block set the global 'scrubbing' variable to false
+      scrubBar.addEventListener('mouseup', function() {
+        scrubbing = false;
+      }, true);
+
+      pre.addEventListener('mousemove', function(e) {
+        var x = e.offsetX;
+        var y = e.offsetY;
+        var green = Math.round(x / this.offsetWidth * 100);
+        var red   = Math.round(100 - y / this.offsetHeight * 100);
+        var blue  = Math.round((green + red) / 2);
+        this.style.color = 'rgb(' + red + '%, ' + green + '%, ' + blue + '%)';
+      }, true);
+    }
+    </script>
+  </head>
+  <body onload="run()">
+    <div id="controls"> 
+      <input type="range" id="scrubBar" min="0" max="9478" step="1" value="0"> 
+    </div> 
+    <pre id="canvas"></pre>
+  </body>
+</html>

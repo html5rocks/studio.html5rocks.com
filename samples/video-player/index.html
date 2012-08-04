@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!--
+ * Copyright (c) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Paul Irish <paulirish@html5rocks.com>
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+    <title>Video PIP</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+        background: black;
+        overflow-y: hidden;
+      }
+      body > * {
+        margin: 0px;
+        padding: 0px;
+      }
+      #player #controls {
+        margin: 5px;
+        top: -80px;
+        width: 370px;
+        position: relative;
+        opacity: 0;
+        height: 68px;
+       -webkit-transition-property: opacity,margin-top;
+       -webkit-transition-duration: 0.2s,0.2s;
+       -webkit-transition-timing-function: linear,linear; 
+        z-index: 1;
+        border-top-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+      #player:hover #controls {
+        opacity: 0.4;
+      }
+      #player #controls:hover {
+        opacity: 1.0;
+      }
+      #play_button {
+       padding-left: 30px;
+       padding-right: 30px;
+      }
+      button {
+        margin: 12px 0px 5px 12px;
+        border: 2px solid #fff;
+        padding: 0px 10px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 17px;
+        line-height: 30px;
+        background: #488CE2;
+        border-radius: 12px;
+        -webkit-border-radius: 12px;
+        text-shadow: #ccc 0px 1px 1px;
+        box-shadow: 0px 0px 3px rgba(0,0,0,.5);
+        -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,.5);
+        -moz-box-shadow: 0px 0px 3px rgba(0,0,0,.5);
+        background: -webkit-gradient(linear, left top, left bottom, from(#488CE2), to(#3D77C4));
+        background: -moz-linear-gradient(top,  #488CE2,  #3D77C4);
+      }
+      button:hover {
+        box-shadow: 0px 0px 2px rgba(0,0,0,1);
+        -webkit-box-shadow: 0px 0px 2px rgba(0,0,0,1);
+        -moz-box-shadow: 0px 0px 2px  rgba(0,0,0,1);
+      }
+      button:active {
+        box-shadow: 0px 0px 0px rgba(0,0,0,.5);
+        -webkit-box-shadow: 0px 0px 0px rgba(0,0,0,.5);
+        -moz-box-shadow: 0px 0px 0px  rgba(0,0,0,.5);
+      }
+      #progressBar {
+        width: 348px;
+        height: 5px;
+        background-color: white;
+        box-shadow: 0px 0px 3px rgba(0,0,0,.5);
+        -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,.5);
+        margin-left: 12px;
+        margin-top: 15px;
+      }
+      #progress {
+        width: 0%;
+        height: 5px;
+        -webkit-transition: width 0.1s ease-in-out;
+        background-color: red;
+      }
+      #player {
+        margin-left: -195px;
+        position: absolute; 
+        left: 50%; 
+        top: 80px;
+      }
+      #video-wrap {
+        position: relative;
+      }
+      canvas.ambilight-left,
+      canvas.ambilight-right {
+        position: absolute;
+        width: 300px;
+        height: 200%;
+        top: -50%;
+        z-index: -1;
+      }
+      canvas.ambilight-left {
+        left: -270px;
+        top: -53%;
+        background-image: url(mask3-left.png);
+      }
+      canvas.ambilight-right {
+        right: -270px;
+        top: -51%;
+        background-image: url(mask3-right.png);
+      }
+      #video-wrap , #player{
+        width: 390px;
+        height: 240px;
+      }
+      #video-bg, video {
+        width: 390px;
+        height: 220px
+      }
+      #video-bg { 
+        background: #222;
+      }
+      video {
+        position: absolute;
+        top: 0; 
+        left: 0;
+        -moz-transition: all 0.3s ease-out;
+        -o-transition: all 0.3s ease-out;
+        -webkit-transition: all 0.3s ease-out;
+        transition: all 0.3s ease-out;
+      }
+      .view1 #clip2 , .view2 #clip1 {
+        width: 70px;
+        height: 41px;
+        left: 313px;
+        top: 170px;
+        z-index: 10;
+        cursor: pointer;
+        border: 1px solid rgba(50,50,50,.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="player">
+        
+        <div id="video-wrap" class="view1 paused">
+        
+           <video id="clip1" preload loop>
+             Your browser does not support the video tag. :(
+             <source src="http://studio.html5rocks.com/samples/video-player/hammock.webm" type="video/vp8" /> 
+             <source src="http://studio.html5rocks.com/samples/video-player/hammock.mp4" type="video/mp4" /> 
+             <source src="http://studio.html5rocks.com/samples/video-player/hammock.ogv" type="video/ogg" />   
+           </video>
+           <video id="clip2" preload loop>
+              <source src="http://studio.html5rocks.com/samples/video-player/chromeicon.webm" type="video/vp8" />  
+              <source src="http://studio.html5rocks.com/samples/video-player/chromeicon.mp4" type="video/mp4" /> 
+              <source src="http://studio.html5rocks.com/samples/video-player/chromeicon2.ogv" type="video/ogg" />
+           </video>
+
+           <div id="video-bg"></div>
+        </div>
+          
+       
+        <div id="controls">
+          <button id="play_button" onclick="ToggleVideo(); return false;">Play</button> 
+          <button id="mute_button" onclick="ToggleMute(); return false;">Mute</button>
+          <div id="progressBar">
+            <div id="progress">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    var player = null;
+    var controls = document.getElementById("controls");
+    var playButton = document.getElementById("play_button");
+    var muteButton = document.getElementById("mute_button");
+    var progressPlayed = document.getElementById("progress");
+    
+    var muted = false;
+    var currentVolume = 1.0;
+    
+    function ToggleVideo() {
+      
+      player = document.querySelector('.view1 #clip1 ,  .view2 #clip2');
+      
+      if (player.ended){
+        player.currentTime = 0;
+        player.pause();
+      }
+      
+      if(player.paused) {
+        
+       player.addEventListener("timeupdate", function(e) {
+          var duration = player.duration;
+          var pos = player.currentTime;
+          progressPlayed.style.width = parseInt((pos / duration) *100) +"%";
+        },false);
+        
+        player.play();
+        playButton.innerText = "Pause"
+      }
+      else {
+        player.pause();
+        playButton.innerText = "Play";
+      }
+    }
+    
+    function ToggleMute() {
+      
+      player = document.querySelector('.view1 #clip1, .view2 #clip2');
+      
+      if (Math.round(player.volume * 100) == 5){ 
+        muted = false;
+      } else {
+        muted = !muted;
+      }
+      if (muted) {
+        currentVolume = player.volume;
+        player.volume = 0;
+        muteButton.innerText = "Unmute";
+      }
+      else {
+        player.volume = currentVolume;
+        muteButton.innerText = "Mute";
+      }
+    }
+    
+    
+    document.querySelector('#video-wrap').addEventListener('click', function(e){
+      // if clicked on minimized
+      if (e.target == document.querySelector('.view1 #clip2 ,  .view2 #clip1')){ 
+        toggle();
+        return;
+      } 
+
+      var wrap = document.getElementById('video-wrap');
+      wrap.className = wrap.className.replace('playing','playingtemp').replace('paused','playing').replace('playingtemp','paused');
+
+     
+
+
+    },false);
+    
+    
+    function fadeIn(elem){
+      var duration = 1000; // how many ms should the fadeIn take
+      var interval = 40;
+      
+      elem.volume = 0.05;
+      
+      var tId = setInterval(function(){
+        
+        var newvol = elem.volume + (1 / (duration / interval));
+        elem.volume = Math.min(1,newvol);
+        
+        if (elem.volume >= .95){
+          clearInterval(tId);
+          elem.volume = 1;
+        }
+      }, interval);
+      
+      ToggleMute();
+    };
+    
+    function toggle(){
+      var minimized = document.querySelector('.view1 #clip2, .view2 #clip1');
+      var full = document.querySelector('.view2 #clip2, .view1 #clip1');
+
+      var wrap = document.getElementById('video-wrap');
+      wrap.className = wrap.className.replace('view1','save1')
+                              .replace('view2','view1').replace('save1','view2')
+                              .replace('paused','playing');
+                              
+      full.pause && full.pause();
+      fadeIn(minimized);
+      minimized.play && ToggleVideo();
+
+    };
+  
+  </script>
+  
+  <!-- -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+  <script src="ambilight.js"></script> 
+  <script> 
+      ambiLight.create(document.getElementById('clip2'));
+      ambiLight.create(document.getElementById('clip1'));
+  </script>
+  <!-- -->
+  
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "ABC News Story Sphere",
+  "description": "Browse the news in 360 degrees",
+  "version": "1",
+  "app": {
+    "urls": [
+      "http://paulirish.com/work/globe/"
+    ],
+    "launch": {
+      "web_url": "http://paulirish.com/work/globe/"
+    }
+  },
+  "icons": {
+    "128": "icon_128.jpg"
+  },
+  "permissions": [
+    "unlimitedStorage",
+    "notifications"
+  ]
+}

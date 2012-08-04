@@ -1,0 +1,218 @@
+body, html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  font: 12pt 'Cantarell', arial, serif;
+  text-align: center;
+  background-color:  hsl(0,25%,30%);
+}
+select#feeds {
+  text-align: center;
+  max-width: 300px;
+}
+audio {
+  display: hidden;
+}
+ul#episodes {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  height: 42px;
+  overflow: hidden;
+  cursor: pointer;
+  width: auto;
+  z-index: 1;
+  position: relative;
+}
+ul#episodes:hover {
+  overflow: visible;
+}
+ul#episodes a {
+  text-decoration: none;
+  padding: 0.2em 0;
+  color: inherit;
+  width: 100%;
+  height: 100%;
+}
+li {
+  text-align: center;
+  padding: 5px;
+  color: white;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  background-image: -webkit-gradient(linear, left top, left 100%, from(#ccc), to(#555));
+  background-color: #bbb;
+  color: #000;
+}
+ul#episodes li:not(:first-child):hover {
+  color: #000;
+  background-image: -webkit-gradient(linear, left top, left 100%, from(#333), to(#555));
+  text-shadow: none;
+}
+li:first-child  {
+  opacity: 1;
+  padding: 10px;
+  background: #F5EE94;
+  color: black;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.8)), color-stop(0.4, rgba(255, 255, 255, 0.5)), color-stop(0.5, rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0)));
+  -webkit-mask-box-image: url(mask.png) 75 stretch;
+  position: relative;
+}
+li.played {
+  background: #bbb;
+  color: #777;
+  text-shadow: white 0px 1px 1px;
+}
+li.played:hover {
+  text-shadow: none;
+}
+li.playing {
+  background: #bbb;
+  background-image: -webkit-gradient(linear, left top, left 100%, from(#ccc), to(#555));
+  color: #000;
+  text-shadow: white 0px 1px 1px;
+}
+#main {
+  margin: 56px auto 0;
+}
+#status {
+  font-size: 10pt;
+  text-align: right;
+  margin-right: 29px;
+  color: #fff;
+  text-shadow: rgba(0, 0, 0, 0.6) -1px -1px 6px, black -1px -1px 1px;
+}
+#main, audio, select {
+  width: 415px;
+}
+.vbox {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-box-align: stretch;
+
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  -moz-box-align: stretch;
+
+  display: box;
+  box-orient: vertical;
+  box-align: stretch;
+}
+
+.center {
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  box-pack: center;
+}
+
+.vista {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 20px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 20px;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0.8)), color-stop(0.48, rgba(255, 255, 255, 0.5)), color-stop(0.5, rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0)));
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  color: #fff;
+  
+  display: inline-block;
+
+  cursor: pointer;
+  position: relative;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 36px;
+  text-decoration: none;
+  text-shadow: rgba(0, 0, 0, 0.6) -1px -1px 6px, black -1px -1px 1px;
+  margin: auto 3px;
+  padding: 0px 13px 0px 14px;
+}
+.black {
+  background-color: black;
+  border: 1px solid black;
+}
+.vista:hover {
+  opacity: 1;
+}
+.vista:active {
+  top: 1px;
+  background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(255, 255, 255, 0.8)), color-stop(0.48, rgba(255, 255, 255, 0.5)), color-stop(0.5, rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0)));
+}
+.arrow {
+  z-index: 1;
+  line-height: 20px;
+}
+#play_button {
+  width: 50px;
+}
+#play_button.playing {
+  -webkit-box-shadow: #3266FF 0px 0px 135px;
+  box-shadow: #3266FF 0px 0px 135px;
+}
+
+#playerControls {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  height: 130px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid rgba(0,0,0,0.5);
+  -moz-border-radius: 50px 15px 50px 15px;
+  border-radius: 50px 15px 50px 15px;
+  background: rgba(0,0,0,0.25);
+  -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+  -moz-box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.3), inset 0 10px rgba(255,255,255,0.2), inset 0 10px 20px rgba(255,255,255,0.25), inset 0 -15px 30px rgba(0,0,0,0.3);
+}
+
+#playerControls > #progressbg {
+  -webkit-box-shadow: #333 0px 1px 3px inset, #555 0px -4px 10px inset, rgba(255, 255, 255, 0.75) 0px 1px 1px, rgba(0, 0, 0, 0.246094) 0px -1px 5px;
+  box-shadow: #333 0px 1px 3px inset, #555 0px -4px 10px inset, rgba(255, 255, 255, 0.75) 0px 1px 1px, rgba(0, 0, 0, 0.246094) 0px -1px 5px;
+  background-color: #777;
+  border: 1px solid #333;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+  display: inline-block;
+
+  height: 15px;
+  width: 300px;
+  margin: 10px 0.5em 0.5em 0.5em;
+  font-size: 8pt;
+  text-align: right;
+  overflow: hidden;
+  color: #fff;
+  text-shadow: rgba(0, 0, 0, 0.6) -1px -1px 6px, black -1px -1px 1px;
+}
+
+#playerControls #progressbar {
+  -webkit-box-shadow: #26A 0px -8px 1px inset, #048 0px -4px 10px inset, black 1px 0px 1px;
+  box-shadow: #26A 0px -8px 1px inset, #048 0px -4px 10px inset, black 1px 0px 1px;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  background-color: #3266FF;
+  border: 1px solid transparent;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  height: 100%;
+  width: 0%;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+#playerControls input[type='range'] {
+  height: 5px;
+  -webkit-transform: scale(1.2);
+  margin-left: 25px;
+  width: 112px;
+}
+
+#playerControls #right_arrow {
+  margin-left: 10px;
+}
+
+small { display: block; margin: 15px 0 5px; }

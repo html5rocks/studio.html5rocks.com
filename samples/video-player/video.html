@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Player</title>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+        background:black;
+      }
+
+      body> * {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      #video-wrap {
+        position:relative;
+        width:390;
+        margin: 100px auto 0;
+      }
+      
+      canvas.ambilight-left,
+      canvas.ambilight-right {
+        position:absolute;
+        width:300px;
+        height:200%;
+        top:-50%;
+      }
+
+      canvas.ambilight-left {
+        left:-270px;
+        top:-53%;
+        background-image:url(../../static/img/mask3-left.png);
+      }
+
+      canvas.ambilight-right {
+        right:-270px;
+        top:-51%;
+        background-image:url(../../static/mask3-right.png);
+      }
+      #video-wrap { width: 390px; height: 240px; }
+      #clip1, #clip2 { width: 390px; height: 240px; background: #ccc; position:absolute; top:0; left:0;
+             -moz-transition: all 0.3s ease-out;  
+               -o-transition: all 0.3s ease-out;  
+          -webkit-transition: all 0.3s ease-out;
+                  transition: all 0.3s ease-out;
+        }
+      #clip2 { background: #aaa; }
+      
+      .view1 #clip2 ,
+      .view2 #clip1 { width: 70px; height: 50px; left: 300px; top: 170px; z-index: 1;}
+      
+      #pause { 
+           -moz-transform: rotate(90deg);  /* FF3.5+ */
+             -o-transform: rotate(90deg);  /* Opera 10.5 */
+        -webkit-transform: rotate(90deg);  /* Saf3.1+, Chrome */
+                transform: rotate(90deg);  /* Saf3.1+, Chrome */
+        }
+        #play, #pause { font-size: 150px; position:absolute; text-align:center; left: 50%; top: 50%; margin-top: -95px; margin-left: -75px; width: 150px; height: 207px;
+                        font-weight:bold; color: #aaa; text-decoration:none; cursor: pointer; text-shadow: 2px 2px 4px rgba(250,250,250,0.8);
+                        opacity:0; display:block; -webkit-user-select:none;
+                         -moz-transition: opacity 0.3s ease-out;  
+                           -o-transition: opacity 0.3s ease-out;  
+                      -webkit-transition: opacity 0.3s ease-out;
+                              transition: opacity 0.3s ease-out;
+                      
+                         }
+        #play:hover, #pause:hover  {
+          color: #999;
+        }
+                        
+        .paused #play, .playing:hover #pause { 
+          opacity:1;
+        }
+        
+        .view1 #clip2,  .view2 #clip1 {
+          cursor:pointer;
+        }
+        
+        /* hovering over PIP shouldnt show pause */
+        .view1 #clip2:hover ~ #pause ,  .view2 #clip1:hover ~ #pause {
+          display:none;
+        }
+        
+      
+        
+    </style>
+  </head>
+  <body>
+    
+    <button>toggle</button>
+    
+     <div id="video-wrap" class="view1 paused">
+     <!--  <video width="390" id="clip"  controls> 
+         <source src="http://slides.html5rocks.com/src/chrome_japan.webm" type="video/vp8"> 
+         <source src="http://slides.html5rocks.com/src/chrome_japan.mp4" type="video/mp4"> 
+         <source src="http://slides.html5rocks.com/src/chrome_japan.ogv" type="video/ogg"> 
+        Your browser does not support the video tag
+      </video>
+      -->
+       <video src="../../static/img/motiontheory.mp4" id="clip1" >
+         <!--  <div id="clip1"></div> -->
+       </video>
+       <video src="../../static/img/chromeicon.mp4" id="clip2" >
+          <!--  <div id="clip2"></div> -->
+       </video>
+      
+        <a href="#" id="play">▷</a>
+        <a href="#" id="pause">⚌</a>
+        
+      </div>
+      
+      
+      
+      
+    <div id="container">
+      <div id="player">
+
+      </div>
+      <div id="innerplayer">
+
+       
+        <p>Some beautifully presented text can go here about the
+current track</p>
+        <p>You might even want some images.</p>
+      </div>
+    </div>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+    <!-- - - >
+    <script src="../../static/js/ambilight.js"></script> 
+    <script> 
+        ambiLight.create(document.getElementById('clip1'))
+    </script>
+    <!-- -->
+    <script>
+    
+      document.querySelector('button').addEventListener('click',toggle,false);
+      
+      document.querySelector('#video-wrap').addEventListener('click',function(e){
+        // if clicked on minimized
+        if (e.target == document.querySelector('.view1 #clip2 ,  .view2 #clip1')){ 
+          toggle();
+          return;
+        } 
+
+        var wrap = document.getElementById('video-wrap');
+        wrap.className = wrap.className.replace('playing','playingtemp').replace('paused','playing').replace('playingtemp','paused');
+
+        var big = document.querySelector('.view1 #clip1 ,  .view2 #clip2');
+        
+        big[ big.paused ? 'play' : 'pause']();
+
+
+      },false);
+      
+      
+      function fadeIn(elem){
+        var duration = 1000; // how many ms should the fadeIn take
+        var interval = 40;
+        
+        elem.volume = 0;
+        
+        var tId = setInterval(function(){
+          
+          elem.volume += 1 / (duration / interval);
+          
+          if (elem.volume >= .95){
+            clearInterval(tId);
+            elem.volume = 1;
+          }
+        },interval);
+      };
+      
+      function toggle(){
+        var minimized = document.querySelector('.view1 #clip2 ,  .view2 #clip1');
+        var full = document.querySelector('.view2 #clip2 ,  .view1 #clip1');
+        full.pause && full.pause();
+        fadeIn(minimized);
+        minimized.play && minimized.play();
+        
+        var wrap = document.getElementById('video-wrap');
+        wrap.className = wrap.className.replace('view1','save1')
+                                .replace('view2','view1').replace('save1','view2')
+                                .replace('paused','playing');
+      };
+      
+    </script>
+  </body>
+
+</html>

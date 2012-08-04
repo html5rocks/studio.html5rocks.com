@@ -1,0 +1,90 @@
+
+a.button.flat, a.button.flat:hover { 
+  background: none;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  cursor: help;
+  border: 0;
+}
+a.button.flat:active { top: auto; }
+
+a.button, a.button:visited {
+  background-color: #222; 
+  background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgba(255,255,255,.4)),
+        color-stop(1, rgba(150,150,150,.4))
+    );
+  background-image: -moz-linear-gradient(
+        center bottom,
+        rgba(255,255,255,.4) 0%,
+        rgba(150,150,150,.4) 100%
+    );
+
+  display: inline-block; 
+  padding: 5px 10px 6px; 
+  color: #fff; 
+  text-decoration: none;
+  -moz-border-radius: 5px; 
+  -webkit-border-radius: 5px;
+  -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  border-radius: 5px; 
+
+  text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  position: relative;
+  cursor: pointer;
+  margin: 0 5px;
+
+  /* font-family: Calibri, "Trebuchet MS", sans-serif; */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+  a.button:hover { background-color: #111; color: #fff; }
+  a.button:active { top: 1px; }
+  a.button, a.button:visited { font-size: 13px; font-weight: bold; line-height: 1; text-shadow: 0 -1px 1px rgba(0,0,0,0.25); }
+
+
+
+
+
+  /* http://almaer.com/scrollbar/debug.html */
+
+  #story ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+  }
+
+  #story ::-webkit-scrollbar-button:start:decrement,
+  #story ::-webkit-scrollbar-button:end:increment {
+      display: block;
+      height: 10px;
+  }
+
+  #story ::-webkit-scrollbar-button:vertical:increment {
+      background-color: #fff;
+  }
+
+  #story ::-webkit-scrollbar-track-piece {
+      background-color: #aaa;
+      -webkit-border-radius: 3px;
+  }
+
+  #story ::-webkit-scrollbar-thumb:vertical {
+      height: 50px;
+      background-color: #fff;
+      -webkit-border-radius: 3px;
+  }
+
+  #story ::-webkit-scrollbar-thumb:horizontal {
+      width: 50px;
+      background-color: #fff;
+      -webkit-border-radius: 3px;
+  }
+
+  /* @end */
